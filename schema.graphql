@@ -2,18 +2,18 @@
 # Add the `@index` or `@index(unique: true)` annotation after any non-key field
 # https://academy.subquery.network/build/graphql.html#indexing-by-non-primary-key-field
 
-# https://support.subscan.io/#blocks-v2
-type block @entity {
+# refer to https://support.subscan.io/#blocks-v2
+type Block @entity {
   id: ID! #id is a required field
-  #blockhigh
+  blockhigh: Int!
   #timestamp
   #hash
   #extrinsics_count
 }
 
 
-# https://support.subscan.io/#extrinsics-v2
-type extrinsics @entity {
+# refer to https://support.subscan.io/#extrinsics-v2
+type Extrinsics @entity {
   id: ID! #id is a required field
   #blockhigh
   #timestamp
@@ -26,8 +26,19 @@ type extrinsics @entity {
   #fee_used
 }
 
-# https://support.subscan.io/#transfers-v2
-type transfer @entity {
+# refer to https://support.subscan.io/#events-v2
+type Event @entity {
+  id: ID! #id is a required field  
+  # timestamp
+  # event_index
+  # extrinsic_index
+  # module
+  # event_id
+  # extrinsic_hash
+}
+
+# refer to https://support.subscan.io/#transfers-v2
+type Transfer @entity {
   id: ID! #id is a required field
   # hash
   # timestamp
@@ -41,9 +52,9 @@ type transfer @entity {
   # fee
   # nonce
 
-  # asset_symbol
-  # asset_type
+  # asset_symbol #DOT
+  # asset_type #native or 
 
-
-  # flag: true //是否异常
+  # flag #Is it abnormal, true/false/value is empty if have no check
+  # level #light/mid/high
 }
