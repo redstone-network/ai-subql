@@ -1,0 +1,49 @@
+# To improve query performance, we strongly suggest adding indexes to any field that you plan to filter or sort by
+# Add the `@index` or `@index(unique: true)` annotation after any non-key field
+# https://academy.subquery.network/build/graphql.html#indexing-by-non-primary-key-field
+
+# https://support.subscan.io/#blocks-v2
+type block @entity {
+  id: ID! #id is a required field
+  #blockhigh
+  #timestamp
+  #hash
+  #extrinsics_count
+}
+
+
+# https://support.subscan.io/#extrinsics-v2
+type extrinsics @entity {
+  id: ID! #id is a required field
+  #blockhigh
+  #timestamp
+  #extrinsic_index
+  #call_module_function
+  #call_module
+  #nonce
+  #extrinsic_hash
+  #fee
+  #fee_used
+}
+
+# https://support.subscan.io/#transfers-v2
+type transfer @entity {
+  id: ID! #id is a required field
+  # hash
+  # timestamp
+  # blockhigh
+  # extrinsic_index
+  # module
+  # call
+  # from
+  # to
+  # balance
+  # fee
+  # nonce
+
+  # asset_symbol
+  # asset_type
+
+
+  # flag: true //是否异常
+}
