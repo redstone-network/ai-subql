@@ -6,54 +6,57 @@
 type Block @entity {
   id: ID! #id is a required field
   blockhigh: Int!
-  #timestamp
-  #hash
-  #extrinsics_count
+  timestamp: Date
+  hash: String!
+  event_count: Int!
+  extrinsics_count: Int!
 }
 
-
 # refer to https://support.subscan.io/#extrinsics-v2
-type Extrinsics @entity {
+type Extrinsic @entity {
   id: ID! #id is a required field
-  #blockhigh
-  #timestamp
-  #extrinsic_index
-  #call_module_function
-  #call_module
-  #nonce
-  #extrinsic_hash
+  blockhigh: Int!
+  extrinsic_index: Int!
+  call_module_function: String!
+  call_module: String!
+  nonce: String!
+  extrinsic_hash: String!
   #fee
   #fee_used
+  timestamp: Date!
+  success: Boolean!
 }
 
 # refer to https://support.subscan.io/#events-v2
 type Event @entity {
   id: ID! #id is a required field  
-  # timestamp
-  # event_index
-  # extrinsic_index
-  # module
-  # event_id
-  # extrinsic_hash
+  event_index: Int!
+  #extrinsic_index: Int!
+  module: String!
+  event_id: String!
+  #extrinsic_hash: String!
+  blockhigh: Int!
+  timestamp: Date!
 }
 
 # refer to https://support.subscan.io/#transfers-v2
 type Transfer @entity {
   id: ID! #id is a required field
-  # hash
-  # timestamp
-  # blockhigh
-  # extrinsic_index
-  # module
-  # call
-  # from
-  # to
-  # balance
+  hash: String!
+  
+  blockhigh: Int!
+  extrinsic_index: Int!
+  module: String!
+  call: String!
+  from: String!
+  to: String!
+  balance: Int!
   # fee
   # nonce
 
-  # asset_symbol #DOT
-  # asset_type #native or 
+  asset_symbol: String! #DOT
+  asset_type: String! #native or other
+  timestamp: Date!
 
   # flag #Is it abnormal, true/false/value is empty if have no check
   # level #light/mid/high
