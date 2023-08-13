@@ -40,6 +40,7 @@ export async function handleBlock(block: SubstrateBlock): Promise<void> {
   let b = new Block(
     block.block.header.number.toString(),
     block.block.header.number.toNumber(),
+    block.timestamp,
     block.block.hash.toString(),
     block.events.length,
     block.block.extrinsics.length,
