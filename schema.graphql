@@ -50,7 +50,7 @@ type Transfer @entity {
   call: String!
   from: String!
   to: String!
-  balance: Int!
+  balance: String!
   # fee
   # nonce
 

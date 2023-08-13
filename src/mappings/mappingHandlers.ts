@@ -1,7 +1,7 @@
 import { EventRecord } from "@polkadot/types/interfaces";
-import { SubstrateExtrinsic, SubstrateBlock } from "@subql/types";
+import { SubstrateExtrinsic, SubstrateBlock, TypedEventRecord } from "@subql/types";
 import { Block, Event, Extrinsic, Transfer } from "../types";
-
+import { Codec } from '@polkadot/types-codec/types';
 
 // let specVersion: SpecVersion;
 export async function handleBlock(block: SubstrateBlock): Promise<void> {
@@ -18,37 +18,30 @@ export async function handleBlock(block: SubstrateBlock): Promise<void> {
     );
 
   // Process all calls in block
-  const calls = wrapExtrinsics(block).map((ext, idx) =>
-    handleCall(`${block.block.header.number.toString()}-${idx}`,
+  const full_calls = wrapExtrinsics(block).map((ext, idx) =>
+    handleCall(
+     `${block.block.header.number.toString()}-${idx}`,
      idx,
      ext, 
      block.timestamp)
   );
 
-  // Process all tranfer in block
-  const isTranfer = (extrinsic: SubstrateExtrinsic, idx: number) => (extrinsic.extrinsic.method.section === "balances" && extrinsic.extrinsic.method.method === "transfer") && (extrinsic.extrinsic.method.section === "balances" && extrinsic.extrinsic.method.method === "transfer_keep_alive");
-  const tranfers = wrapExtrinsics(block).filter(isTranfer).map((ext, idx) =>
-    handleTransfer(`${block.block.header.number.toString()}-${idx}`,
-     idx, 
-     block.block.header.number.toNumber(),
-     ext, 
-     block.timestamp)
-  );
+  const calls = full_calls.map((c) => {
+    return c[0]
+  });
 
-  let b = new Block(
-    block.block.header.number.toString(),
-    block.block.header.number.toNumber(),
-    block.block.hash.toString(),
-    block.events.length,
-    block.block.extrinsics.length,
-  );
-  await b.save();
+  let trs = [];
+  for (var item of full_calls) {
+    for (var tr of item[1]) {
+      trs.push(tr);
+    }
+  }
 
   // Save all data
   await Promise.all([
     store.bulkCreate("Event", events),
     store.bulkCreate("Extrinsic", calls),
-    store.bulkCreate("Transfer", tranfers),
+    store.bulkCreate("Transfer", trs),
   ]);
 }
 
@@ -69,7 +62,24 @@ function handleEvent(
   return newEvent;
 }
 
-function handleCall(idx: string,  extrinsicIdx: number, extrinsic: SubstrateExtrinsic, timestamp: Date,): Extrinsic {
+function handleCall(idx: string,  extrinsicIdx: number, extrinsic: SubstrateExtrinsic, timestamp: Date,): [Extrinsic, Transfer[]] {
+  const tranfers = extrinsic.events
+    .filter(
+      (evt) =>
+        (
+          evt.event.section === "balances" &&
+          evt.event.method === "Transfer"
+        )
+    ).map((evt, index)  =>
+    handleTransfer(
+    `${idx}-${extrinsicIdx}`,
+     extrinsic.block.block.header.number.toNumber(),
+     extrinsicIdx, 
+     extrinsic, 
+     evt,
+     timestamp)
+  );
+
   const newExtrinsic = new Extrinsic(
       idx,
       extrinsic.block.block.header.number.toNumber(),   
@@ -81,10 +91,18 @@ function handleCall(idx: string,  extrinsicIdx: number, extrinsic: SubstrateExtr
       timestamp,
       extrinsic.success,
   );
-  return newExtrinsic;
+
+  return [newExtrinsic, tranfers];
 }
 
-function handleTransfer(idx: string,  blockNumber: number, extrinsicIdx: number, extrinsic: SubstrateExtrinsic, timestamp: Date,){
+function handleTransfer(
+  idx: string,
+  blockNumber: number,
+  extrinsicIdx: number,
+  extrinsic: SubstrateExtrinsic,
+  event: TypedEventRecord<Codec[]>,
+  timestamp: Date,){
+
   let args = extrinsic.extrinsic.method.args;
   const newTransfer = new Transfer(
     idx,
@@ -93,9 +111,9 @@ function handleTransfer(idx: string,  blockNumber: number, extrinsicIdx: number,
     extrinsicIdx,
     extrinsic.extrinsic.method.section,
     extrinsic.extrinsic.method.method,
-    args[0].toString(),
-    args[1].toString(),
-    BigInt(args[2].toString()),
+    event.event.data[0].toString(),
+    event.event.data[1].toString(),
+    event.event.data[2].toString(),
     "DOT",
     "native",
     timestamp,
