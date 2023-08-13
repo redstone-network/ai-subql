@@ -37,6 +37,15 @@ export async function handleBlock(block: SubstrateBlock): Promise<void> {
     }
   }
 
+  let b = new Block(
+    block.block.header.number.toString(),
+    block.block.header.number.toNumber(),
+    block.block.hash.toString(),
+    block.events.length,
+    block.block.extrinsics.length,
+  );
+  await b.save();
+
   // Save all data
   await Promise.all([
     store.bulkCreate("Event", events),
@@ -70,9 +79,9 @@ function handleCall(idx: string,  extrinsicIdx: number, extrinsic: SubstrateExtr
           evt.event.section === "balances" &&
           evt.event.method === "Transfer"
         )
-    ).map((evt, index)  =>
+    ).map((evt, evt_index)  =>
     handleTransfer(
-    `${idx}-${extrinsicIdx}`,
+    `${idx}-${evt_index}`,
      extrinsic.block.block.header.number.toNumber(),
      extrinsicIdx, 
      extrinsic, 
