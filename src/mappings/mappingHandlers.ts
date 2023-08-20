@@ -6,6 +6,10 @@ import { Codec } from '@polkadot/types-codec/types';
 // let specVersion: SpecVersion;
 export async function handleBlock(block: SubstrateBlock): Promise<void> {
 
+  if (block.block.header.number.toNumber() > 1220000) {
+      throw new Error('block out limit');
+  }
+
   // Process all events in block
   const events = block.events
     .filter(
