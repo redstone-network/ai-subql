@@ -58,6 +58,6 @@ type Transfer @entity {
   asset_type: String! #native or other
   timestamp: Date!
 
-  # flag #Is it abnormal, true/false/value is empty if have no check
-  # level #light/mid/high
+  flag: Boolean #Is it abnormal, true/false/value is empty if have no check
+  level: Int #light/mid/high
 }
